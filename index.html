@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Raid Tracker</title>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--tx:#1d1b18;--mu:#6b655c;--ac:#c2410c;--bd:#ddd6c8;--q:#8f8a80;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14120f;--card:#1f1c18;--tx:#efe9dd;--mu:#9a9285;--ac:#fb923c;--bd:#3a352d;--q:#b8b0a2;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,sans-serif;padding:12px;max-width:760px;margin-inline:auto}
+h1{font-size:22px;letter-spacing:.3px;margin:4px 0 10px}h2{font-size:16px;margin:18px 0 8px}
+button,input{font:inherit}
+.nav{display:flex;gap:6px;margin-bottom:12px;padding:6px;background:var(--card);border:1px solid var(--bd);border-radius:14px}
+.nav button{flex:1;padding:10px;border:0;border-radius:10px;background:transparent;color:var(--tx);font-size:16px;font-weight:600}
+.nav button.on{background:var(--ac);color:#fff}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:10px 14px;font-size:15px}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.rr{display:flex;gap:8px;align-items:stretch;margin:12px 0}
+.raid{flex:1;padding:18px;font-size:20px;font-weight:700;border:0;border-radius:14px;background:linear-gradient(135deg,var(--ac),#9a3412);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.raid small{display:block;font-weight:400;font-size:13px;opacity:.9}
+.mb{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:14px;padding:0 22px;font-size:26px}
+.sm{padding:8px 14px;font-size:15px;border-radius:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.it{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.it b{display:block}.it span{color:var(--mu);font-size:12px;display:block}
+.it .q{color:var(--q)}.it .n{color:var(--ac);font-size:13px;margin-top:4px}
+.pm{display:flex;gap:6px;margin-top:8px}
+.pm button{flex:1;padding:10px 0;font-size:20px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
+.pm button:last-child{background:var(--ac);color:#fff;border-color:var(--ac)}
+button:active{transform:scale(.96)}
+.ctl{display:flex;gap:6px;margin-top:10px}
+.ctl button{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:10px 14px;font-size:15px}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--bd)}th{color:var(--mu);font-weight:500}
+.mu{color:var(--mu);font-size:13px}
+#acc{margin:10px 0}
+.row2{display:flex;gap:6px;margin-top:6px}
+.row2 input{flex:1;min-width:0;padding:10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:15px}
+.row2 button{padding:10px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
+.row2 button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+#ban{font-weight:600;margin-top:6px}
+.ro .pm,.ro .rr,.ro .ctl{opacity:.4;pointer-events:none}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20}
+#dr{position:fixed;top:0;right:0;bottom:0;width:min(92vw,420px);background:var(--bg);border-left:1px solid var(--bd);z-index:21;overflow-y:auto;box-sizing:border-box;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(100%);transition:transform .25s}
+#dr.open{transform:none}
+#pk{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--bd);padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.35)}
+#pk .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#pk button,#pk input{font-size:18px;padding:12px 16px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+#pk input{width:110px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<nav class="nav"><button id="nv-raids" class="on" onclick="view('raids')">Raids</button><button id="nv-fortune" onclick="view('fortune')">Fortune</button></nav>
+<section id="v-raids">
+<div class="hd"><h1>Raid Tracker</h1><button class="mb sm" onclick="tog()">Gesamt</button></div>
+<div class="box" id="acc">
+  <div id="login"><div class="row2"><input id="un" placeholder="Benutzername" autocomplete="username" maxlength="20" autocapitalize="none"><input id="pw" type="password" placeholder="Passwort" autocomplete="current-password"></div>
+  <div class="row2"><button class="pri" id="bi">Anmelden</button><button id="br">Neu registrieren</button></div></div>
+  <div id="me" hidden><span id="who"></span> <button class="sm" id="bo" style="margin-left:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx)">Abmelden</button></div>
+  <div class="row2"><input id="sq" placeholder="Benutzername ansehen" maxlength="20" autocapitalize="none"><button id="sb">Ansehen</button><button id="bk" hidden>Zu mir</button></div>
+  <div class="mu" id="st"></div><div id="ban"></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="rr"><button class="raid" id="raid"></button><button class="mb" id="rm">&minus;</button></div>
+<div class="grid" id="grid"></div>
+<div class="ctl"><button id="undo">Letzten Eintrag zurück</button></div>
+<h2>Heute</h2>
+<div class="box" id="today"></div>
+</section>
+<section id="v-fortune" hidden><h1>Fortune</h1><div class="box"><p class="mu">Kommt bald. Hier entsteht später der Fortune-Tracker.</p></div></section>
+<div id="ov" hidden onclick="tog()"></div>
+<div id="pk" hidden></div>
+<aside id="dr"><button class="mb sm" onclick="tog()">Schließen</button>
+<h2>Gesamt</h2><div class="box" id="tot"></div>
+<h2>Statistik Tier <span id="stt"></span></h2><div class="box" id="stat"></div>
+<h2>Verlauf</h2><div class="box" id="hist"></div></aside>
+<p class="mu">Deine Daten liegen online. Wer deinen Benutzernamen kennt, kann deine Zahlen ansehen, aber nur du kannst eintragen.</p>
+<script>
+const SB="https://ytgrrlzmisuajxtydwcs.supabase.co",KEY="sb_publishable_X4BZTyEXo5pc3ipx6M6CFg_4dqaadRO",DOM="@raidtracker.app",SK="raid-session-v1";
+const H="Heavenite",G="Gargantuan",F="Fichilliumorite",HI="Heart Of The Island",KI="Kitsunite",MA="Marblite",CE="Ceyite",AM="Anti Matter",SI="Singularity",MT="Matter",SB2="Supermassive Black Hole",GA="Galaxite",TE="Tetrinite",BI="Bizzarite";
+// [Name, 1 in N, Menge pro Drop]
+const T={
+10:[[H,16,"x2-4"],[G,18,"x2-4"],[F,23,"x2-22"],[HI,27,"x2-4"],[KI,28,"x2"],[MA,30,"x2-4"],[CE,32,"x2-4"],[AM,42,"x2-4"],[SI,45,"x2-4"],[MT,45,"x2-4"],[SB2,85,"x2-4"],[GA,150,"x2"]],
+11:[[H,16,"x2-4"],["Echotite",17,"x1-2"],[G,18,"x2-4"],[F,23,"x2-23"],[KI,23,"x2"],[HI,27,"x2-4"],[MA,30,"x2-4"],[CE,32,"x2-4"],[AM,42,"x2-4"],[MT,45,"x2-4"],[SI,45,"x2-4"],[SB2,85,"x2-4"],[GA,150,"x2"]],
+12:[[H,16,"x2-4"],[KI,17,"x2"],[G,18,"x2-4"],[SI,21,"x2-4"],[F,23,"x2-24"],[HI,27,"x2-4"],[MA,30,"x2-4"],[CE,32,"x2-4"],["Frost Core",39,"x1-2"],[SB2,40,"x2-4"],[AM,42,"x2-4"],[MT,45,"x2-4"],[GA,150,"x2"]],
+13:[[H,16,"x2-5"],[KI,17,"x2"],[G,18,"x2-5"],[SI,21,"x2-5"],[F,23,"x2-26"],[HI,27,"x2-5"],[MA,30,"x2-5"],[CE,32,"x2-5"],[SB2,40,"x2-5"],[AM,42,"x2-5"],[TE,45,"x1-2"],[MT,45,"x2-5"],[GA,56,"x2"]],
+14:[[TE,14,"x1-3"],[H,16,"x2-5"],[KI,17,"x2"],[G,18,"x2-5"],[SI,21,"x2-5"],[F,23,"x2-28"],[HI,27,"x2-5"],[MA,30,"x2-5"],[CE,32,"x2-5"],[SB2,40,"x2-5"],[AM,42,"x2-5"],[MT,45,"x2-5"],[GA,56,"x2"],[BI,75,"x1-3"]],
+15:[[TE,14,"x1-3"],[H,16,"x3-6"],[KI,17,"x2-3"],[G,18,"x3-6"],[SI,21,"x3-6"],[F,23,"x3-30"],[HI,27,"x3-6"],[MA,30,"x3-6"],[CE,32,"x3-6"],[BI,36,"x1-3"],[SB2,40,"x3-6"],[AM,42,"x3-6"],[MT,45,"x3-6"],["Frost Star",49,"x1-3"],[GA,56,"x3"]]
+};
+const $=id=>document.getElementById(id);
+let S={log:[]},tier=15,sess=null,cur="",ro=true,chain=Promise.resolve(),loading=false;
+const day=()=>new Date().toLocaleDateString("sv");
+const note=t=>{$("st").textContent=t||""};
+async function api(path,opt,t){opt=opt||{};const h=Object.assign({apikey:KEY,"Content-Type":"application/json"},opt.headers||{});if(t)h.Authorization="Bearer "+t;
+  const r=await fetch(SB+path,Object.assign({},opt,{headers:h}));let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok)throw new Error((j&&(j.msg||j.message||j.error_description||j.error))||("Fehler "+r.status));return j}
+// Sitzung
+function saveSess(){try{sess?localStorage.setItem(SK,JSON.stringify(sess)):localStorage.removeItem(SK)}catch(e){}}
+function setSess(j,name){sess={access:j.access_token,refresh:j.refresh_token,exp:Date.now()/1000+(j.expires_in||3600),name:name||sess.name};saveSess()}
+async function tok(){if(!sess)throw new Error("Bitte anmelden.");
+  if(sess.exp-60<Date.now()/1000){try{setSess(await api("/auth/v1/token?grant_type=refresh_token",{method:"POST",body:JSON.stringify({refresh_token:sess.refresh})}))}catch(e){sess=null;saveSess();ui();throw new Error("Bitte neu anmelden.")}}
+  return sess.access}
+function errtxt(m){m=String(m||"");if(/invalid login/i.test(m))return"Benutzername oder Passwort falsch.";if(/already registered|already been registered/i.test(m))return"Dieser Name ist schon vergeben.";if(/failed to fetch|network/i.test(m))return"Keine Verbindung zum Server.";return m}
+async function auth(kind){const n=$("un").value.trim().toLowerCase(),p=$("pw").value;
+  if(!/^[a-z0-9._-]{3,20}$/.test(n)){note("Benutzername: 3 bis 20 Zeichen, nur a-z, Zahlen, Punkt, Unterstrich, Bindestrich.");return}
+  if(p.length<6){note("Das Passwort braucht mindestens 6 Zeichen.");return}
+  note("Einen Moment ...");
+  try{const j=await api(kind=="up"?"/auth/v1/signup":"/auth/v1/token?grant_type=password",{method:"POST",body:JSON.stringify({email:n+DOM,password:p})});
+    if(!j.access_token){note("Registrierung ohne Anmeldung: In Supabase muss „Confirm email“ ausgeschaltet sein.");return}
+    setSess(j,n);$("pw").value="";note("");await load(n);ui()}
+  catch(e){note(errtxt(e.message))}}
+// Daten
+async function load(name){loading=true;try{let all=[],off=0;
+  for(;;){const r=await api("/rest/v1/entries?select=id,day,tier,k,q,t&username=eq."+encodeURIComponent(name)+"&order=t.asc&limit=1000&offset="+off);all=all.concat(r);if(r.length<1000)break;off+=1000}
+  S={log:all.map(x=>({id:x.id,d:x.day,tier:x.tier,k:x.k,q:x.q||undefined,t:x.t}))};cur=name;ro=!(sess&&sess.name==name);draw()}
+  catch(e){note("Laden fehlgeschlagen: "+errtxt(e.message))}loading=false}
+function add(k,q){if(ro)return;const e={d:day(),t:Date.now(),tier:tier,k:k};if(q)e.q=q;S.log.push(e);$("pk").hidden=true;draw();
+  chain=chain.then(async()=>{try{const t=await tok();const r=await api("/rest/v1/entries",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({username:sess.name,day:e.d,tier:e.tier,k:e.k,q:e.q||null,t:e.t})},t);e.id=r[0].id}
+    catch(x){S.log=S.log.filter(y=>y!==e);draw();note("Nicht gespeichert: "+errtxt(x.message))}})}
+function del(e){chain=chain.then(async()=>{try{if(!e.id)return;const t=await tok();await api("/rest/v1/entries?id=eq."+e.id,{method:"DELETE"},t)}
+  catch(x){S.log.push(e);S.log.sort((a,b)=>a.t-b.t);draw();note("Löschen fehlgeschlagen: "+errtxt(x.message))}})}
+function sub(k){if(ro)return;for(let i=S.log.length-1;i>=0;i--){const e=S.log[i];if(e.tier==tier&&e.k==k){S.log.splice(i,1);del(e);draw();return}}}
+function plus(i){if(ro)return;const it=T[tier][i],k=it[0],m=/x(\d+)(?:-(\d+))?/.exec(it[2]||"");if(!m){add(k,1);return}
+  const lo=+m[1],hi=m[2]?+m[2]:lo;if(lo==hi){add(k,lo);return}
+  let h='<b>'+k+'</b>: Wie viele sind gedroppt?<div class="row">';
+  if(hi-lo>10)h+='<input id="qn" type="number" inputmode="numeric" min="'+lo+'" max="'+hi+'" value="'+lo+'"><button onclick="add(T[tier]['+i+'][0],Math.max('+lo+',Math.min('+hi+',+$(\'qn\').value||'+lo+')))">Eintragen</button>';
+  else for(let q=lo;q<=hi;q++)h+='<button onclick="add(T[tier]['+i+'][0],'+q+')">'+q+'</button>';
+  const p=$("pk");p.innerHTML=h+'<button onclick="$(\'pk\').hidden=true">Abbrechen</button></div>';p.hidden=false}
+// Auswertung
+function cnt(f){return S.log.filter(f).length}
+function sm(f){return S.log.filter(f).reduce((a,e)=>a+(e.q||1),0)}
+function bq(l){const m={};l.forEach(e=>{const q=e.q||1;m[q]=(m[q]||0)+1});return Object.keys(m).map(Number).sort((a,b)=>a-b).map(q=>m[q]+"x"+q).join(" / ")}
+function draw(){
+  document.body.classList.toggle("ro",ro);
+  $("tabs").innerHTML=Object.keys(T).map(t=>'<button class="'+(t==tier?"on":"")+'" onclick="tier='+t+';draw()">T'+t+'</button>').join("");
+  const td=day();
+  $("raid").innerHTML="Raid +1 (T"+tier+")<small>Heute: "+cnt(e=>e.d==td&&e.k=="raid")+" Raids gesamt, "+cnt(e=>e.d==td&&e.k=="raid"&&e.tier==tier)+" in T"+tier+"</small>";
+  $("grid").innerHTML=T[tier].map((it,i)=>{const f=e=>e.tier==tier&&e.k==it[0]&&e.d==td;
+    return '<div class="it"><b>'+it[0]+'</b><span>1 in '+it[1]+'</span><span class="q">'+it[2]+'</span><div class="n">heute '+sm(f)+'</div><div class="q" style="font-size:12px;min-height:15px">'+bq(S.log.filter(f))+'</div><div class="pm"><button onclick="sub(T[tier]['+i+'][0])">&minus;</button><button onclick="plus('+i+')">+</button></div></div>'}).join("");
+  const dr=S.log.filter(e=>e.d==td&&e.k!="raid"),m={};
+  dr.forEach(e=>{const k="T"+e.tier+" "+e.k;(m[k]=m[k]||[]).push(e)});
+  $("today").innerHTML="<b>"+cnt(e=>e.d==td&&e.k=="raid")+" Raids</b>, "+dr.length+" Drops, "+dr.reduce((a,e)=>a+(e.q||1),0)+" Items"+
+    (dr.length?"<table>"+Object.entries(m).map(([k,v])=>"<tr><td>"+k+"</td><td>"+v.reduce((a,e)=>a+(e.q||1),0)+'</td><td class="mu">'+bq(v)+"</td></tr>").join("")+"</table>":"<div class='mu'>Noch kein Drop heute.</div>");
+  const rows=Object.keys(T).map(t=>{const r=cnt(e=>e.tier==t&&e.k=="raid"),d=cnt(e=>e.tier==t&&e.k!="raid"),s=sm(e=>e.tier==t&&e.k!="raid");return "<tr><td>T"+t+"</td><td>"+r+"</td><td>"+d+"</td><td>"+s+"</td></tr>"}).join("");
+  $("tot").innerHTML="<table><tr><th>Tier</th><th>Raids</th><th>Drops</th><th>Items</th></tr>"+rows+"<tr><th>Summe</th><th>"+cnt(e=>e.k=="raid")+"</th><th>"+cnt(e=>e.k!="raid")+"</th><th>"+sm(e=>e.k!="raid")+"</th></tr></table>";
+  $("stt").textContent=tier;
+  $("stat").innerHTML='<div class="mu">'+cnt(e=>e.k=="raid"&&e.tier==tier)+" Raids insgesamt in T"+tier+"</div><table><tr><th>Item</th><th>Drops</th><th>Items</th></tr>"+T[tier].map(it=>{const g=e=>e.tier==tier&&e.k==it[0];return "<tr><td>"+it[0]+"</td><td>"+cnt(g)+"</td><td>"+sm(g)+"</td></tr>"}).join("")+"</table>";
+  const days={};S.log.forEach(e=>{const o=days[e.d]||(days[e.d]={r:0,d:0});e.k=="raid"?o.r++:o.d++});
+  const ks=Object.keys(days).sort().reverse();
+  $("hist").innerHTML=ks.length?"<table><tr><th>Tag</th><th>Raids</th><th>Drops</th></tr>"+ks.map(k=>"<tr><td>"+k+"</td><td>"+days[k].r+"</td><td>"+days[k].d+"</td></tr>").join("")+"</table>":"<div class='mu'>Noch keine Einträge.</div>";
+}
+function ui(){const li=!!sess;$("login").hidden=li;$("me").hidden=!li;if(li)$("who").textContent="Angemeldet als "+sess.name;
+  $("bk").hidden=!(li&&cur&&cur!=sess.name);
+  $("ban").textContent=ro?(cur?"Ansicht von "+cur+" (nur lesen)":"Melde dich an oder sieh dir einen Benutzer an."):"";draw()}
+function view(v){["raids","fortune"].forEach(x=>{$("v-"+x).hidden=x!=v;$("nv-"+x).classList.toggle("on",x==v)});$("dr").classList.remove("open");$("ov").hidden=true}
+function tog(){const o=$("dr").classList.toggle("open");$("ov").hidden=!o}
+$("raid").onclick=()=>add("raid");
+$("rm").onclick=()=>sub("raid");
+$("undo").onclick=()=>{if(ro||!S.log.length)return;const e=S.log.pop();del(e);draw()};
+$("bi").onclick=()=>auth("in");
+$("br").onclick=()=>auth("up");
+$("bo").onclick=()=>{sess=null;saveSess();S={log:[]};cur="";ro=true;note("");ui()};
+$("sb").onclick=async()=>{const n=$("sq").value.trim().toLowerCase();if(!n)return;note("");await load(n);if(!S.log.length)note("Keine Einträge für diesen Namen.");ui()};
+$("bk").onclick=async()=>{if(sess){note("");await load(sess.name);ui()}};
+setInterval(()=>{if(ro&&cur&&!document.hidden&&!loading)load(cur)},30000);
+(async()=>{try{sess=JSON.parse(localStorage.getItem(SK))}catch(e){sess=null}
+  ui();if(sess){await load(sess.name);ui()}})();
+</script>
+</body>
+</html>
