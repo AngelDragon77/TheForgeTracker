@@ -79,7 +79,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;p
 <h2>Verlauf</h2><div class="box" id="hist"></div></aside>
 <p class="mu">Deine Daten liegen online. Wer deinen Benutzernamen kennt, kann deine Zahlen ansehen, aber nur du kannst eintragen.</p>
 <script>
-const SB="https://ytgrrlzmisuajxtydwcs.supabase.co",KEY="sb_publishable_X4BZTyEXo5pc3ipx6M6CFg_4dqaadRO",DOM="@raidtracker.app",SK="raid-session-v1";
+const SB="https://ytgrrlzmisuajxtydwcs.supabase.co",KEY="sb_publishable_X4BZTyEXo5pc3ipx6M6CFg_4dqaadRO",DOM="@gmail.com",SK="raid-session-v1";
 const H="Heavenite",G="Gargantuan",F="Fichilliumorite",HI="Heart Of The Island",KI="Kitsunite",MA="Marblite",CE="Ceyite",AM="Anti Matter",SI="Singularity",MT="Matter",SB2="Supermassive Black Hole",GA="Galaxite",TE="Tetrinite",BI="Bizzarite";
 // [Name, 1 in N, Menge pro Drop]
 const T={
@@ -103,10 +103,10 @@ function setSess(j,name){sess={access:j.access_token,refresh:j.refresh_token,exp
 async function tok(){if(!sess)throw new Error("Bitte anmelden.");
   if(sess.exp-60<Date.now()/1000){try{setSess(await api("/auth/v1/token?grant_type=refresh_token",{method:"POST",body:JSON.stringify({refresh_token:sess.refresh})}))}catch(e){sess=null;saveSess();ui();throw new Error("Bitte neu anmelden.")}}
   return sess.access}
-function errtxt(m){m=String(m||"");if(/invalid login/i.test(m))return"Benutzername oder Passwort falsch.";if(/already registered|already been registered/i.test(m))return"Dieser Name ist schon vergeben.";if(/failed to fetch|network/i.test(m))return"Keine Verbindung zum Server.";return m}
+function errtxt(m){m=String(m||"").replace(/"?[\w.+-]+@[\w.-]+"?/g,"der Name");if(/email address.*invalid|invalid.*email/i.test(m))return"Dieser Benutzername wird nicht akzeptiert.";if(/invalid login/i.test(m))return"Benutzername oder Passwort falsch.";if(/already registered|already been registered/i.test(m))return"Dieser Name ist schon vergeben.";if(/failed to fetch|network/i.test(m))return"Keine Verbindung zum Server.";return m}
 async function auth(kind){const n=$("un").value.trim().toLowerCase(),p=$("pw").value;
   if(!/^[a-z0-9._-]{3,20}$/.test(n)){note("Benutzername: 3 bis 20 Zeichen, nur a-z, Zahlen, Punkt, Unterstrich, Bindestrich.");return}
-  if(p.length<6){note("Das Passwort braucht mindestens 6 Zeichen.");return}
+  if(p.length<4){note("Das Passwort braucht mindestens 4 Zeichen.");return}
   note("Einen Moment ...");
   try{const j=await api(kind=="up"?"/auth/v1/signup":"/auth/v1/token?grant_type=password",{method:"POST",body:JSON.stringify({email:n+DOM,password:p})});
     if(!j.access_token){note("Registrierung ohne Anmeldung: In Supabase muss „Confirm email“ ausgeschaltet sein.");return}
